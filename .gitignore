@@ -1,0 +1,14 @@
+# OS / エディタ
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# パッケージ化した拡張機能（秘密鍵を含むので絶対にコミットしない）
+*.crx
+*.pem
+*.zip
+
+# Claude Code のローカル設定
+.claude/settings.local.json
