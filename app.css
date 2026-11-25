@@ -122,7 +122,9 @@ nav button.active { color: var(--accent); border-bottom-color: var(--accent); fo
 .row .acts button.icon { border: none; background: none; padding: 2px 5px; font-size: 14px; line-height: 1; border-radius: 4px; }
 .row .acts button.icon:hover { background: var(--line); }
 .row .acts button.on { color: var(--star); opacity: 1; }
-.row .acts button.prot-on { color: var(--ok); }
+.row .acts button.prot { color: var(--muted); display: inline-flex; align-items: center; }
+.row .acts button.prot:hover { color: var(--ok); }
+.row .acts button.prot-on { color: var(--ok); opacity: 1; display: inline-flex; align-items: center; }
 .bar { height: 3px; border-radius: 2px; background: var(--accent); opacity: .5; margin-top: 2px; }
 
 .pill { display: inline-block; padding: 0 6px; border-radius: 99px; background: var(--line); color: var(--muted); font-size: 10.5px; }

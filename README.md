@@ -1,4 +1,4 @@
-# タブ整理＆日報（Tab Archive Diary）
+# HibiTab（タブ整理＆日報）
 
 一定時間触っていない「放置タブ」を自動でアーカイブして閉じ、その日に開いたページを**日付ごとの日報**として Google ドライブに保存する Chrome 拡張機能です。
 お気に入り・よく見る・アーカイブのタブもまとめて管理できます。
@@ -24,7 +24,7 @@
 
 ## インストール
 
-1. このリポジトリをダウンロード（`git clone https://github.com/tamamune/Tab-Archive-Diary.git`、または「Code → Download ZIP」して展開）
+1. このリポジトリをダウンロード（`git clone https://github.com/tamamune/HibiTab.git`、または「Code → Download ZIP」して展開）
 2. Chrome で `chrome://extensions`（Vivaldi は `vivaldi://extensions`）を開く
 3. 右上の「デベロッパーモード」をオン
 4. 「パッケージ化されていない拡張機能を読み込む」→ ダウンロードしたフォルダを選択

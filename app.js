@@ -45,6 +45,12 @@ function h(tag, attrs, ...kids) {
 const btn = (label, title, fn, cls = '') =>
   h('button', { class: 'icon ' + cls, title, onclick: (e) => { e.stopPropagation(); fn(e); } }, label);
 
+const shieldIcon = (on) => {
+  const t = document.createElement('template');
+  t.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2.5 4.5 5.5v5.7c0 4.6 3.1 8.6 7.5 10.3 4.4-1.7 7.5-5.7 7.5-10.3V5.5L12 2.5z" fill="${on ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>${on ? '<path d="m8.5 12 2.4 2.4 4.6-4.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' : ''}</svg>`;
+  return t.content.firstChild;
+};
+
 let toastTimer;
 function toast(text, isErr = false) {
   const t = document.getElementById('toast');
@@ -200,7 +206,7 @@ async function renderOpen() {
       onClick: run(() => focusTab(t)),
       actions: [
         btn(isFav ? '★' : '☆', isFav ? 'お気に入りから外す' : 'お気に入りに追加', run(() => toggleFavorite(url, t.title)), isFav ? 'on' : ''),
-        btn('🛡', isProt ? '保護を解除' : '自動で閉じないよう保護', run(() => toggleProtect(t.id)), isProt ? 'prot-on' : ''),
+        btn(shieldIcon(isProt), isProt ? '保護を解除' : '自動で閉じないよう保護', run(() => toggleProtect(t.id)), isProt ? 'prot-on' : 'prot'),
         btn('📦', 'アーカイブして閉じる', run(async () => { await send({ type: 'archiveTabs', tabIds: [t.id] }); toast('アーカイブしました'); })),
         btn('✕', '閉じる（アーカイブしない）', run(() => chrome.tabs.remove(t.id))),
       ],
