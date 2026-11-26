@@ -12,3 +12,8 @@ desktop.ini
 
 # Claude Code のローカル設定
 .claude/settings.local.json
+
+# ローカルシークレット
+lib/secrets.js
+GEMINI.md
+

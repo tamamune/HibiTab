@@ -3,7 +3,14 @@ import {
   getSettings, dateKey, isTrackable, normalizeUrl, uid, getDay, listDays, protectionReason, isVivaldiPanel, getDevice,
 } from './lib/common.js';
 import { buildReportData, deviceSection, mergeDeviceSection } from './lib/report.js';
-import { connectDrive, disconnectDrive, uploadReport } from './lib/drive.js';
+import {
+  connectDrive,
+  disconnectDrive,
+  uploadReport,
+  uploadConfigBackup,
+  listConfigBackups,
+  restoreConfigBackup,
+} from './lib/drive.js';
 
 // ストレージの読み書きを直列化して取りこぼしを防ぐ
 const queue = (() => {
@@ -284,6 +291,12 @@ async function doSync({ interactive = false, dates = null } = {}) {
       syncMeta[d] = { syncedAt: startedAt, fileId };
       count++;
     }
+    // 設定とお気に入りのバックアップもアップロード
+    try {
+      await uploadConfigBackup(device, interactive);
+    } catch (e) {
+      console.warn('設定バックアップのアップロードに失敗:', e);
+    }
     await chrome.storage.local.set({ syncMeta, lastSync: { at: Date.now(), ok: true, count } });
     return { count };
   } catch (e) {
@@ -342,6 +355,12 @@ async function handle(msg) {
       return {};
     case 'syncNow':
       return await syncDrive({ interactive: true, dates: msg.dates || null });
+    case 'backupConfig':
+      return { fileId: await uploadConfigBackup(await getDevice(), true) };
+    case 'listConfigBackups':
+      return { backups: await listConfigBackups(true) };
+    case 'restoreConfig':
+      return await restoreConfigBackup(msg.fileId, true);
     default:
       throw new Error('unknown message: ' + msg.type);
   }

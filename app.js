@@ -587,10 +587,12 @@ async function renderSettings() {
       lastSync && h('p', { class: 'note' }, `前回の同期: ${new Date(lastSync.at).toLocaleString('ja-JP')} `,
         lastSync.ok ? `（${lastSync.count} 日分を保存）` : h('span', { class: 'status-ng' }, `失敗: ${lastSync.error}`)),
       mode === 'web'
-        ? [
-          field('OAuth クライアントID（種類: ウェブアプリケーション）', el.driveClientId = h('input', { type: 'text', placeholder: 'xxxxxxxx.apps.googleusercontent.com', value: s.driveClientId }), null),
-          h('div', { class: 'field' }, h('span', { class: 'lbl' }, '承認済みのリダイレクトURI に登録する値'), h('div', { class: 'code' }, chrome.identity.getRedirectURL())),
-        ]
+        ? h('details', { style: 'margin: 8px 0; font-size: 12px; color: #666;' },
+            h('summary', { style: 'cursor: pointer; user-select: none;' }, '高度な設定（OAuth クライアント情報）'),
+            h('div', { style: 'margin-top: 8px; padding-left: 8px; border-left: 2px solid #ddd;' },
+              field('OAuth クライアントID（種類: ウェブアプリケーション）', el.driveClientId = h('input', { type: 'text', placeholder: 'xxxxxxxx.apps.googleusercontent.com', value: s.driveClientId }), null),
+              h('div', { class: 'field' }, h('span', { class: 'lbl' }, '承認済みのリダイレクトURI に登録する値'), h('div', { class: 'code' }, chrome.identity.getRedirectURL())),
+            ))
         : h('p', { class: 'note' }, 'manifest.json の oauth2.client_id（Chrome 拡張機能タイプ）で認証します。拡張機能ID: ', h('span', { class: 'code' }, chrome.runtime.id)),
       field('保存先フォルダ名', inp('driveFolderName', { type: 'text' }), 'マイドライブ直下に作成され、日ごとに「YYYY-MM-DD.md」が保存されます。'),
       field('この PC の名前', inp('deviceName', { type: 'text', placeholder: device.name, style: 'width:220px' }),
@@ -608,6 +610,40 @@ async function renderSettings() {
         }, s.driveEnabled ? '再接続' : 'Google ドライブに接続'),
         s.driveEnabled && h('button', { onclick: run(async () => { toast('同期中…'); const r = await send({ type: 'syncNow' }); toast(`${r.count} 日分を保存しました`); }) }, '今すぐ同期'),
         s.driveEnabled && h('button', { class: 'danger', onclick: run(async () => { if (confirm('Google ドライブとの接続を解除しますか？（ドライブ上のファイルは残ります）')) await send({ type: 'driveDisconnect' }); }) }, '接続解除'))),
+    s.driveEnabled && h('div', { class: 'section' },
+      h('h3', null, '設定・データのクラウド保存'),
+      h('p', { class: 'note' }, 'この PC の設定、お気に入り、アーカイブ、閲覧履歴（よく見る）を Google ドライブにバックアップしたり、保存済みの設定から復元できます。'),
+      h('div', { class: 'inline' },
+        h('button', {
+          onclick: run(async () => {
+            toast('Google ドライブへバックアップ中…');
+            await send({ type: 'backupConfig' });
+            toast('設定とお気に入り・アーカイブを保存しました');
+          }),
+        }, 'データをドライブに保存'),
+        h('button', {
+          onclick: run(async () => {
+            toast('バックアップ一覧を確認中…');
+            const { backups = [] } = await send({ type: 'listConfigBackups' });
+            if (!backups.length) {
+              alert('ドライブ上に設定バックアップが見つかりませんでした');
+              return;
+            }
+            const msg = backups
+              .map((b, i) => `${i + 1}: ${b.name} (${new Date(b.modifiedTime).toLocaleString('ja-JP')})`)
+              .join('\n');
+            const choice = prompt(`復元したいバックアップの番号を入力してください:\n\n${msg}`, '1');
+            const idx = Number(choice) - 1;
+            if (choice == null || isNaN(idx) || idx < 0 || idx >= backups.length) return;
+            const target = backups[idx];
+            if (confirm(`「${target.name}」の設定、お気に入り、アーカイブ、閲覧履歴を復元しますか？`)) {
+              toast('復元中…');
+              await send({ type: 'restoreConfig', fileId: target.id });
+              toast('設定とお気に入り・アーカイブを復元しました');
+              setTimeout(() => location.reload(), 1000);
+            }
+          }),
+        }, 'ドライブから復元'))),
     h('div', { class: 'section' },
       h('h3', null, 'データ'),
       h('div', { class: 'inline' },
